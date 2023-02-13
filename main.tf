@@ -13,6 +13,14 @@ provider "aws" {
   region  = "ap-south-1"
   profile = "default"
 }
+data "aws_vpc" "default_vpc_data" {
+  default = true
+}
+
+data "aws_subnet" "default_subnet" {
+  id     = "subnet-034e185bc2d4644cb"
+  vpc_id = data.aws_vpc.default_vpc_data.id
+}
 
 data "aws_ami" "ubuntu" {
   most_recent = true
@@ -31,15 +39,15 @@ data "aws_ami" "ubuntu" {
 }
 
 resource "aws_instance" "ec2_instance" {
-  ami = data.aws_ami.ubuntu.id
+  ami           = data.aws_ami.ubuntu.id
   instance_type = "t2.micro"
-  key_name = "shubham"
+  key_name      = "shubham"
 }
 
 resource "aws_db_instance" "app_db" {
   identifier          = "app-db"
   db_name             = "pokemon"
-  engine           = "mariadb"
+  engine              = "mariadb"
   engine_version      = "10.6.11"
   instance_class      = "db.t2.micro"
   username            = "example_user"
