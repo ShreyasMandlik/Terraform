@@ -37,11 +37,52 @@ data "aws_ami" "ubuntu" {
 
   owners = ["099720109477"] # Canonical
 }
+resource "aws_security_group" "instance_security_groups" {
+  name        = "instance-security-groups"
+  description = "Allow TLS inbound traffic"
+  vpc_id      = data.aws_vpc.default_vpc_data.id
+
+  ingress {
+    description      = "TLS from VPC"
+    from_port        = 443
+    to_port          = 443
+    protocol         = "tcp"
+    cidr_blocks      = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    description      = "TLS from VPC"
+    from_port        = 23
+    to_port          = 23
+    protocol         = "tcp"
+    cidr_blocks      = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    description      = "TLS from VPC"
+    from_port        = 80
+    to_port          = 80
+    protocol         = "tcp"
+    cidr_blocks      = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port        = 0
+    to_port          = 0
+    protocol         = "-1"
+    cidr_blocks      = ["0.0.0.0/0"]
+    ipv6_cidr_blocks = ["::/0"]
+  }
+
+}
+
 
 resource "aws_instance" "ec2_instance" {
   ami           = data.aws_ami.ubuntu.id
+  subnet_id     = data.aws_subnet.default_subnet.id
   instance_type = "t2.micro"
   key_name      = "shubham"
+  security_groups = [aws_security_group.instance_security_groups.id]
 }
 
 resource "aws_db_instance" "app_db" {
@@ -56,5 +97,8 @@ resource "aws_db_instance" "app_db" {
   allocated_storage   = 20
   availability_zone   = "ap-south-1a"
   port                = 3306
-
 }
+
+
+
+
