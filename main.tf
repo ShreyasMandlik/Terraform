@@ -97,7 +97,22 @@ resource "aws_db_instance" "app_db" {
   allocated_storage   = 20
   availability_zone   = "ap-south-1a"
   port                = 3306
+  vpc_security_group_ids = [aws_security_group.database_security_group_rds.id]
 }
+
+resource "aws_security_group" "database_security_group_rds" {
+  name="rds1-ec2-sg"
+
+  ingress {
+    from_port = 3306
+    protocol  = "tcp"
+    to_port   = 3306
+    security_groups = [aws_security_group.instance_security_groups.id]
+  }
+}
+
+
+
 
 
 
